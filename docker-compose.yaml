@@ -35,8 +35,8 @@ services:
       mariadb:
         condition: service_healthy
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
+      - "8443:443"
       - "1812:1812/udp"
       - "1813:1813/udp"
     networks:
