@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  mariadb:
+    image: mariadb:10.6
+    container_name: mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: packetfence
+      MYSQL_USER: pfuser
+      MYSQL_PASSWORD: pfpassword
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - packetfence_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "pfuser", "-ppfpassword"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  packetfence:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: packetfence
+    restart: unless-stopped
+    environment:
+      MYSQL_USER: pfuser
+      MYSQL_PASSWORD: pfpassword
+      MYSQL_HOST: mariadb
+      MYSQL_DATABASE: packetfence
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "1812:1812/udp"
+      - "1813:1813/udp"
+    networks:
+      - packetfence_net
+    tmpfs:
+      - /run
+    privileged: true
+    volumes:
+      - packetfence_data:/usr/local/pf
+
+volumes:
+  mariadb_data:
+  packetfence_data:
+
+networks:
+  packetfence_net:
+    driver: bridge
