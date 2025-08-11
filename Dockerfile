@@ -27,6 +27,9 @@ RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/pol
     apt-get install -y ./packetfence-fixed.deb && \
     rm /usr/sbin/policy-rc.d
 
+RUN a2enmod ssl && \
+    a2ensite default-ssl
+
 WORKDIR /
 RUN rm -rf /build
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
