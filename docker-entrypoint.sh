@@ -3,7 +3,6 @@ set -e
 
 LOG_FILE="/var/log/pf-install.log"
 
-# Função para logar com timestamp
 log() {
     echo "$(date '+%F %T') - $1" | tee -a "$LOG_FILE"
 }
@@ -15,7 +14,6 @@ CONFIG_LOCK_FILE="/var/lib/packetfence/configured.lock"
 if [ ! -f "$CONFIG_LOCK_FILE" ]; then
     log "Primeira inicialização detectada. Iniciando configuração dos pacotes .deb..."
 
-    # Instalar pacotes .deb
     if [ -d "/tmp/deps" ]; then
         cd /tmp/deps || { log "Erro: não foi possível acessar /tmp/deps"; exit 1; }
         for i in {1..5}; do
@@ -32,14 +30,12 @@ if [ ! -f "$CONFIG_LOCK_FILE" ]; then
 
     log "Configuração dos pacotes concluída."
 
-    # Criar arquivo de lock para não repetir a configuração
     mkdir -p /var/lib/packetfence
     touch "$CONFIG_LOCK_FILE"
 else
     log "Configuração já concluída. Pulando instalação."
 fi
 
-# Verificar existência dos binários e iniciar serviços
 PF_MARIADB_BIN="/usr/sbin/packetfence-mariadb"
 PF_BIN="/usr/sbin/packetfence"
 
@@ -63,5 +59,4 @@ log "Iniciando $PF_BIN"
 
 log "PacketFence iniciado com sucesso."
 
-# Manter o container rodando para evitar restart
 tail -f "$LOG_FILE"
